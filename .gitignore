@@ -1,0 +1,55 @@
+# Rust build artifacts
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Test artifacts and directories
+test_dir*/
+test_files/
+*.test
+*.tmp
+test* 
+aws/ 
+awscli-exe-linux-x86_64.zip
+
+# Generated documentation
+/doc/
+/target/doc/
+
+# Environment files
+.env
+.env.local
+.env.*
+
+# AWS credentials and config files
+.aws/
+aws.credentials
+config.json
+
+# Debug logs
+*.log
+debug/
+logs/
+
+# Binary files
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Backup files
+*~
+*.bak
+*.backup
+
+# Local development files
+local/
+dev/
+notes/

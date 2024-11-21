@@ -1,0 +1,13 @@
+[storage]
+type = "s3"
+bucket = "my-test-bucket"
+region = "us-east-1"
+
+[mount]
+mount_point = "/mnt/cloud"
+cache_size = 1024  # MB
+read_only = true
+
+[transfer]
+parallel_uploads = 4
+chunk_size = 8  # MB
