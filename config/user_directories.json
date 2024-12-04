@@ -1,0 +1,12 @@
+{
+    "users": {
+        "user1": {
+            "allowed_directory": "user1_data",
+            "read_only": false
+        },
+        "user2": {
+            "allowed_directory": "user2_data",
+            "read_only": false
+        }
+    }
+}

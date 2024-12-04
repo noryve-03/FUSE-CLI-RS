@@ -39,6 +39,8 @@ pub struct StorageConfig {
     pub region: Option<String>,
     pub endpoint: Option<String>,
     pub bucket: Option<String>,
+    pub access_key_id: Option<String>,
+    pub secret_access_key: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -117,6 +119,8 @@ impl Default for Config {
                 region: Some("us-east-1".to_string()),
                 endpoint: None,
                 bucket: None,
+                access_key_id: None,
+                secret_access_key: None,
             },
             mount_options: MountOptions {
                 cache_size_mb: 1024,

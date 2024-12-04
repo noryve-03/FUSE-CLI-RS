@@ -25,13 +25,13 @@ mod cli;
 mod config;
 mod error;
 mod storage;
-mod fuse;
+// mod fuse;
 
 use cli::{Cli, Commands};
 use config::Config;
 use error::{Result, ToolError};
 use storage::s3::S3Storage;
-use fuse::CloudFS;
+// use fuse::CloudFS;
 
 use tracing::{info, error};
 
@@ -96,10 +96,52 @@ async fn main() -> Result<()> {
             }
         }
 
-        Commands::Mount { source, mountpoint, readonly: _ } => {
+        Commands::Mount { source, mountpoint, readonly } => {
             info!("Mounting {} at {}", source, mountpoint.display());
-            let fs = CloudFS::new(storage);
-            fs.mount(mountpoint)?;
+            
+            // Extract bucket and path from s3:// URL
+            let bucket = source.trim_start_matches("s3://")
+                .split('/')
+                .next()
+                .ok_or_else(|| ToolError::InvalidOperation("Invalid S3 URL format".into()))?;
+            
+            let path = source.trim_start_matches("s3://")
+                .trim_start_matches(bucket)
+                .trim_start_matches('/');
+
+            // Build mount-s3 command
+            let mut command = std::process::Command::new("mount-s3");
+            command.arg(bucket);
+            command.arg(mountpoint.clone());
+
+            // Add options
+            if readonly {
+                command.arg("--read-only");
+            }
+
+            // Use AWS credentials from config if available
+            if let Some(key_id) = config.default_storage.access_key_id {
+                command.env("AWS_ACCESS_KEY_ID", key_id);
+            }
+            if let Some(secret_key) = config.default_storage.secret_access_key {
+                command.env("AWS_SECRET_ACCESS_KEY", secret_key);
+            }
+            if let Some(region) = config.default_storage.region {
+                command.env("AWS_DEFAULT_REGION", region);
+            }
+
+            // Execute mount command
+            let status = command.status()
+                .map_err(|e| ToolError::Io(e))?;
+
+            if !status.success() {
+                return Err(ToolError::InvalidOperation(format!(
+                    "Failed to mount S3 bucket. Make sure mount-s3 is installed and you have the necessary permissions. Exit code: {}",
+                    status.code().unwrap_or(-1)
+                )));
+            }
+
+            info!("Successfully mounted S3 bucket {} at {}", bucket, mountpoint.display());
         }
 
         Commands::Sync { source, destination, delete } => {
